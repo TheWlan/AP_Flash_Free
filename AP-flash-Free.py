@@ -12,7 +12,6 @@
     modification history:
     what    when            who     why
     v0.1    1/7/2019        HA      Initial version
-
 -------------------------------------------------------------------'''
 import json
 import os
