@@ -26,49 +26,68 @@ def config_worker(device):
     error = "Error"
     print("Testing AP: " + device)
     try:
-        net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='#Fr3shFo0dP3opL3*',
-                                     secret="#Fr3shFo0dP3opL3*", timeout=20, auth_timeout=20)
+        net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='P@ssword1',
+                                     secret="P@ssword1", timeout=20, auth_timeout=20)
+        #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='#Fr3shFo0dP3opL3*',
+                                    # secret="#Fr3shFo0dP3opL3*", timeout=20, auth_timeout=20)
         time.sleep(1)
         net_connect.enable()
-        CDPOUT = net_connect.send_command("dir", delay_factor=2,
+        CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
                                           use_textfsm=True)  # BW-Added textfsm start
-        # print(CDPOUT) #Print the output for checking
+        #print(CDPOUT) #Print the output for checking
         js_CDPOUT = CDPOUT
-            with open('APSpace.json', 'a') as outfile:
-                json.dump(js_CDPOUT, outfile)
-           # for neighbor in CDPOUT:
-            #    mgmt_ip = (neighbor['management_ip'])
-            #    rem_port = (neighbor['remote_port'])
-           #     print("AP Flash Fail\n")
-            #    print("Switch IP,Switch Interface,AP IP\n")
-            #    print(mgmt_ip + "," + rem_port + "," + device)  # BW-Added textfsm finish
-             #   file.write(mgmt_ip + "," + rem_port + "," + device + "\n")  # Write to user friendly CSV
-        net_connect.disconnect()
+        
+        with open('APSpace.json', 'a') as outfile:
+            json.dump(js_CDPOUT, outfile)
+            
+            for neighbor in CDPOUT:
+                test = (neighbor['name'],neighbor['total_free'])
+                   
+            net_connect.disconnect()
+            #print(test[1])
+            Flash_free = int(test[1])
+            if Flash_free <= 18141185:
+                print("AP IP: " + device + " Does not have enough Flash Storage Free")
+                print(Flash_free)
+                file.write(device + "," + str(Flash_free) + "\n")  # Write to user friendly CSV
+            else:
+                print('enough flash')
+                print(Flash_free)
         ####################################################################
         # Login and test if AP has Flash Corruption if first attempt fails
         ####################################################################
     except:
         try:
             net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
-                                         password='#Fr3shFo0dP3opL3*', secret="#Fr3shFo0dP3opL3*", timeout=20,
+                                         password='pythonP@ssword1', secret="P@ssword1", timeout=20,
                                          auth_timeout=20)
+           # net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
+                                        # password='#Fr3shFo0dP3opL3*', secret="#Fr3shFo0dP3opL3*", timeout=20,
+                                        # auth_timeout=20)
             time.sleep(1)
             net_connect.enable()
-            CDPOUT = net_connect.send_command("dir", delay_factor=2,
+            CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
                                           use_textfsm=True)  # BW-Added textfsm start
         # print(CDPOUT) #Print the output for checking
             js_CDPOUT = CDPOUT
-                with open('APSpace.json', 'a') as outfile:
-                    json.dump(js_CDPOUT, outfile)
-           # for neighbor in CDPOUT:
-            #    mgmt_ip = (neighbor['management_ip'])
-            #    rem_port = (neighbor['remote_port'])
-           #     print("AP Flash Fail\n")
-            #    print("Switch IP,Switch Interface,AP IP\n")
-            #    print(mgmt_ip + "," + rem_port + "," + device)  # BW-Added textfsm finish
-             #   file.write(mgmt_ip + "," + rem_port + "," + device + "\n")  # Write to user friendly CSV
-            net_connect.disconnect()
+            
+            with open('APSpace.json', 'a') as outfile:
+                json.dump(js_CDPOUT, outfile)
+                
+                print(type(CDPOUT))
 
+                for neighbor in CDPOUT:
+                    test = (neighbor['name'],neighbor['total_free'])
+                    
+                net_connect.disconnect()
+                Flash_free = int(test[1])
+                if Flash_free <= 18141185:
+                    print("AP IP: " + device + " Does not have enough Flash Storage Free")
+                    print(Flash_free)
+                    file.write(device + "," + str(Flash_free) + "\n")  # Write to user friendly CSV
+                else:
+                    print('enough flash')
+                    print(Flash_free)
         ##################################
         # If AP not online
         ##################################
