@@ -48,11 +48,11 @@ def config_worker(device):
             if Flash_free <= 18141185:
                 print("AP IP: " + device + " Does not have enough Flash Storage Free")
                 print(Flash_free)
-                file.write(device + "," + str(Flash_free) + "Not_Enough_Space\n")  # Write to user friendly CSV
+                file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
             else:
                 print('enough flash')
                 print(Flash_free)
-                file.write(device + "," + str(Flash_free) + "Enough_Space\n")  # Write to user friendly CSV
+                file.write(device + "," + str(Flash_free) + ",Enough_Space\n")  # Write to user friendly CSV
         ####################################################################
         # Login and test if AP has Flash Corruption if first attempt fails
         ####################################################################
@@ -84,10 +84,11 @@ def config_worker(device):
                 if Flash_free <= 18141185:
                     print("AP IP: " + device + " Does not have enough Flash Storage Free")
                     print(Flash_free)
-                    file.write(device + "," + str(Flash_free) + "\n")  # Write to user friendly CSV
+                    file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
                 else:
                     print('enough flash')
                     print(Flash_free)
+                    file.write(device + "," + str(Flash_free) + ",Enough_Space\n")
         ##################################
         # If AP not online
         ##################################
