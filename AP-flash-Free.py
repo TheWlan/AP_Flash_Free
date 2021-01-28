@@ -45,7 +45,7 @@ def config_worker(device):
             net_connect.disconnect()
             #print(test[1])
             Flash_free = int(test[1])
-            if Flash_free <= 18141185:
+            if Flash_free <= 18000000:
                 print("AP IP: " + device + " Does not have enough Flash Storage Free")
                 print(Flash_free)
                 file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
@@ -81,7 +81,7 @@ def config_worker(device):
                     
                 net_connect.disconnect()
                 Flash_free = int(test[1])
-                if Flash_free <= 18141185:
+                if Flash_free <= 18000000:
                     print("AP IP: " + device + " Does not have enough Flash Storage Free")
                     print(Flash_free)
                     file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
@@ -109,9 +109,9 @@ def read_devices(devices_filename):
             device_info = device_line.strip().split(',')  # extract device info from line
 
             device = {'AP': device_info[0]}  # create dictionary of device objects ...
-
             #devices[device['AP'][0]+ device['AP'][2:]] = device  # store our device in the devices dictionary - Woolworths Only As applies NAT
-            devices[device['AP']] = device  # For Non WOW Customers
+            devices[device['AP']] = device  # No NAT
+
 
     return devices
 
