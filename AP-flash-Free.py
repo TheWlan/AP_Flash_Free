@@ -25,10 +25,10 @@ def config_worker(device):
     error = "Error"
     print("Testing AP: " + device)
     try:
-        net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='P@ssword1',
-                                     secret="P@ssword1", timeout=20, auth_timeout=20)
-        #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='#Fr3shFo0dP3opL3*',
-                                    # secret="#Fr3shFo0dP3opL3*", timeout=20, auth_timeout=20)
+        #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='P@ssword1',
+                                     #secret="P@ssword1", timeout=20, auth_timeout=20)
+        net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='#Fr3shFo0dP3opL3*',
+                                     secret="#Fr3shFo0dP3opL3*", timeout=20, auth_timeout=20)
         time.sleep(1)
         net_connect.enable()
         CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
@@ -58,12 +58,12 @@ def config_worker(device):
         ####################################################################
     except:
         try:
+            #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
+                                         #password='pythonP@ssword1', secret="P@ssword1", timeout=20,
+                                         #auth_timeout=20)
             net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
-                                         password='pythonP@ssword1', secret="P@ssword1", timeout=20,
+                                         password='#Fr3shFo0dP3opL3*', secret="#Fr3shFo0dP3opL3*", timeout=20,
                                          auth_timeout=20)
-           # net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
-                                        # password='#Fr3shFo0dP3opL3*', secret="#Fr3shFo0dP3opL3*", timeout=20,
-                                        # auth_timeout=20)
             time.sleep(1)
             net_connect.enable()
             CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
@@ -109,8 +109,8 @@ def read_devices(devices_filename):
             device_info = device_line.strip().split(',')  # extract device info from line
 
             device = {'AP': device_info[0]}  # create dictionary of device objects ...
-            #devices[device['AP'][0]+ device['AP'][2:]] = device  # store our device in the devices dictionary - Woolworths Only As applies NAT
-            devices[device['AP']] = device  # No NAT
+            devices[device['AP'][0]+ device['AP'][2:]] = device  # store our device in the devices dictionary - Woolworths Only As applies NAT
+            #devices[device['AP']] = device  # No NAT
 
 
     return devices
