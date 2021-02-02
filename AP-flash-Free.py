@@ -1,9 +1,8 @@
 '''------------------------------------------------------------------
-    script: AP-flash-chk.py
+    script: AP-flash-free.py
     author: Haydn Andrews
     date:   1/7/2019
-    desc:   Find APs with Flash corruption, it will use threading to test multiple APs at
-            Same Time
+    desc:   Find APs with less than 18MB of free flash
 	Requirements:
 	    - You need to have this: git clone https://github.com/networktocode/ntc-templates.git
         - You need File with each APs IP address listed per line
