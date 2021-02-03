@@ -17,20 +17,30 @@ import os
 #from pprint import pprint # used if debugging
 import time
 from multiprocessing.dummy import Pool as ThreadPool
+from napalm import get_network_driver
 from netmiko import ConnectHandler
+from netmiko import Netmiko
+
+""" Variables - Either a file or define in a function """
+username_variable = 'admin'
+password_variable = 'P@ssword1'
+enable_password_variable = 'P@ssword1'
+transport_variable = 'ssh'
+fast_cli_variable = False    # Saves 8 seconds connecting
 
 def config_worker(device):
     file = open("ap-flash-chk-result.csv", "a")
     error = "Error"
+    Flash_free = {}
     print("Testing AP: " + device)
     try:
-        #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='P@ssword1',
-                                     #secret="P@ssword1", timeout=20, auth_timeout=20)
-        net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin', password='#Fr3shFo0dP3opL3*',
-                                     secret="#Fr3shFo0dP3opL3*", timeout=20, auth_timeout=20)
-        time.sleep(1)
-        net_connect.enable()
-        CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
+        """ Napalm connect """
+        driver = get_network_driver('ios')
+        optional_args = {'transport': transport_variable, 'secret': enable_password_variable, 'fast_cli': fast_cli_variable}
+        dev = driver(device, username_variable, password_variable, timeout=30, optional_args=optional_args)
+        dev.open()
+
+        CDPOUT = dev.device.send_command("dir flash:", delay_factor=2,
                                           use_textfsm=True)  # BW-Added textfsm start
         #print(CDPOUT) #Print the output for checking
         js_CDPOUT = CDPOUT
@@ -39,55 +49,52 @@ def config_worker(device):
             json.dump(js_CDPOUT, outfile)
             
             for neighbor in CDPOUT:
-                test = (neighbor['name'],neighbor['total_free'])
+                Flash_free = {"name":(neighbor['name']), "Free": (neighbor['total_free'])}
                    
-            net_connect.disconnect()
-            #print(test[1])
-            Flash_free = int(test[1])
-            if Flash_free <= 18000000:
+            dev.close()
+
+            if int(Flash_free["Free"]) <= 18000000:
                 print("AP IP: " + device + " Does not have enough Flash Storage Free")
-                print(Flash_free)
-                file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
+                print(Flash_free["Free"])
+                file.write(device + "," + test + ",Not_Enough_Space\n")  # Write to user friendly CSV
             else:
                 print('enough flash')
-                print(Flash_free)
-                file.write(device + "," + str(Flash_free) + ",Enough_Space\n")  # Write to user friendly CSV
+                print(Flash_free["Free"])
+                print("test")
+                file.write(device + "," + test + ",Enough_Space\n")  # Write to user friendly CSV
         ####################################################################
         # Login and test if AP has Flash Corruption if first attempt fails
         ####################################################################
     except:
         try:
-            #net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
-                                         #password='pythonP@ssword1', secret="P@ssword1", timeout=20,
-                                         #auth_timeout=20)
-            net_connect = ConnectHandler(ip=device, device_type='cisco_ios', username='admin',
-                                         password='#Fr3shFo0dP3opL3*', secret="#Fr3shFo0dP3opL3*", timeout=20,
-                                         auth_timeout=20)
-            time.sleep(1)
-            net_connect.enable()
-            CDPOUT = net_connect.send_command("dir flash:", delay_factor=2,
+            """ Napalm connect """
+            driver = get_network_driver('ios')
+            optional_args = {'transport': transport_variable, 'secret': enable_password_variable, 'fast_cli': fast_cli_variable}
+            dev = driver(device, username_variable, password_variable, timeout=30, optional_args=optional_args)
+            dev.open()
+
+            CDPOUT = dev.device.send_command("dir flash:", delay_factor=2,
                                           use_textfsm=True)  # BW-Added textfsm start
         # print(CDPOUT) #Print the output for checking
             js_CDPOUT = CDPOUT
             
             with open('APSpace.json', 'a') as outfile:
                 json.dump(js_CDPOUT, outfile)
-                
-                print(type(CDPOUT))
 
                 for neighbor in CDPOUT:
-                    test = (neighbor['name'],neighbor['total_free'])
-                    
-                net_connect.disconnect()
-                Flash_free = int(test[1])
-                if Flash_free <= 18000000:
+                    Flash_free = {"name":(neighbor['name']), "Free": (neighbor['total_free'])}
+                       
+                dev.close()
+
+                if int(Flash_free["Free"]) <= 18000000:
                     print("AP IP: " + device + " Does not have enough Flash Storage Free")
-                    print(Flash_free)
-                    file.write(device + "," + str(Flash_free) + ",Not_Enough_Space\n")  # Write to user friendly CSV
+                    print(Flash_free["Free"])
+                    file.write(device + "," + test + ",Not_Enough_Space\n")  # Write to user friendly CSV
                 else:
                     print('enough flash')
-                    print(Flash_free)
-                    file.write(device + "," + str(Flash_free) + ",Enough_Space\n")
+                    print(Flash_free["Free"])
+                    print("test")
+                    file.write(device + "," + test + ",Enough_Space\n")  # Write to user friendly CSV
         ##################################
         # If AP not online
         ##################################
@@ -108,8 +115,8 @@ def read_devices(devices_filename):
             device_info = device_line.strip().split(',')  # extract device info from line
 
             device = {'AP': device_info[0]}  # create dictionary of device objects ...
-            devices[device['AP'][0]+ device['AP'][2:]] = device  # store our device in the devices dictionary - Woolworths Only As applies NAT
-            #devices[device['AP']] = device  # No NAT
+            #devices[device['AP'][0]+ device['AP'][2:]] = device  # store our device in the devices dictionary - Woolworths Only As applies NAT
+            devices[device['AP']] = device  # No NAT
 
 
     return devices
